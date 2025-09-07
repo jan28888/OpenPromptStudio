@@ -33,7 +33,7 @@ export async function fetchFromNotion(options: { apiKey: string; databaseId: str
             let dir = page.properties?.dir?.select?.name
             let alias = page.properties?.alias?.rich_text?.[0]?.text?.content
             subType = subTypeMap[subType] ?? "normal"
-            let item = { text, desc, lang_zh, subType, dir, tags, alias }
+            let item = { text, desc, lang_zh, subType, dir, tags, alias, source: 'notion' }
             if (!text) return
             defineMap[item?.text?.toLowerCase()] = item
             if (typeof alias === "string") {

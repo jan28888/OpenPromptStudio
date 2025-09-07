@@ -1,4 +1,5 @@
 import { fetchFromNotion } from "./lib/fetchFromNotion"
+import { insertToNotion, deleteFromNotion, findNotionPage, INotionInsertData, INotionPage } from "./lib/insertToNotion"
 
 export interface IPromptDefineItem {
     text: string
@@ -9,6 +10,7 @@ export interface IPromptDefineItem {
     sampleCmds?: string[]
     isAlias?: boolean
     tags?: string[]
+    source?: 'local' | 'notion' // 添加来源字段
 }
 
 export class DatabaseServer {
@@ -57,6 +59,21 @@ export class DatabaseServer {
         this.notionPromptDefineMap = defineMap
         Object.assign(this.localPromptDefineMap, defineMap)
         return { defineMap, me }
+    }
+
+    async insertToNotion(options: { apiKey: string; databaseId: string }, data: INotionInsertData) {
+        console.log("insertToNotion options", options, "data", data)
+        return await insertToNotion(options, data)
+    }
+
+    async deleteFromNotion(options: { apiKey: string; databaseId: string }, pageId: string) {
+        console.log("deleteFromNotion options", options, "pageId", pageId)
+        return await deleteFromNotion(options, pageId)
+    }
+
+    async findNotionPage(options: { apiKey: string; databaseId: string }, text: string): Promise<INotionPage | null> {
+        console.log("findNotionPage options", options, "text", text)
+        return await findNotionPage(options, text)
     }
 }
 

@@ -18,6 +18,7 @@ export interface IPromptWord {
     lv?: number
     alv?: number
     isEg?: boolean
+    source?: 'local' | 'notion' // 添加来源字段
 }
 export enum PromptWordType {
     Word = "word",
@@ -66,6 +67,7 @@ export async function parsePrompts(
             if (define.subType) word.subType = define.subType
             if (define.desc) word.desc = define.desc
             if (define.dir) word.dir = define.dir
+            if (define.source) word.source = define.source
         }
         result.words.push(word)
     })

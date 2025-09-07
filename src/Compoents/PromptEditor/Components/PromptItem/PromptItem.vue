@@ -42,6 +42,10 @@
         <div class="link" v-if="item.data?.word?.link" @click.stop="doOpenUrl(item.data.word.link)" @mousedown.stop>
             <Icon icon="radix-icons:link-2" />
         </div>
+        <!-- Notion 来源角标 -->
+        <div class="notion-badge" v-if="item.data?.word?.source === 'notion'" v-tooltip="'来自 Notion'">
+            <Icon icon="logos:notion-icon" />
+        </div>
         <div class="dnd-slots">
             <div class="dnd-slot-pre"></div>
             <div class="dnd-slot-next"></div>
@@ -205,6 +209,28 @@
         box-shadow: 0 2px 2px rgba(51, 54, 67, 0.2509803922);
         font-size: 16px;
         transition: all 0.2s ease;
+    }
+
+    .notion-badge {
+        position: absolute;
+        right: -8px;
+        top: -8px;
+        background: linear-gradient(#4ade80, #22c55e);
+        height: 20px;
+        width: 20px;
+        display: flex;
+        place-content: center;
+        place-items: center;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
+        font-size: 12px;
+        transition: all 0.2s ease;
+        z-index: 10;
+        
+        &:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 6px rgba(34, 197, 94, 0.4);
+        }
     }
     &:hover {
         .link {

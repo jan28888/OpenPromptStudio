@@ -297,6 +297,8 @@ export default {
                         let databaseId = re?.[1]
                         console.log("found databaseId", databaseId, re)
                         this.input_databaseId = databaseId
+                        this.databaseId = databaseId
+                        return
                     } else {
                         this.input_databaseId = ""
                     }

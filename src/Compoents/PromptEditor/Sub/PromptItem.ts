@@ -80,6 +80,7 @@ export class PromptItem {
             if (pDesc["lang_zh"]) this.data.word.langText = pDesc["lang_zh"]
             if (pDesc.desc) this.data.word.desc = pDesc.desc
             if (pDesc.subType) this.data.word.subType = pDesc.subType
+            if (pDesc.source) this.data.word.source = pDesc.source
         }
 
         console.log("[updateContent]", this.data.word.langText, cp)
@@ -106,5 +107,6 @@ function emptyWord() {
         args: [],
         lv: null,
         isEg: null,
+        source: 'local', // 默认为本地来源
     }
 }
