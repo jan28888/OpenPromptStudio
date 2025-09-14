@@ -7,5 +7,12 @@
 <script>
 import "../Style/Font"
 import "./../Style/var.scss"
-export default {}
+import { loadAllCSVFiles } from "../utils/csvLoader"
+
+export default {
+    async mounted() {
+        const csvData = await loadAllCSVFiles('/data/src/dict')
+        this.$root.$emit('csv-data-loaded', csvData)
+    }
+}
 </script>

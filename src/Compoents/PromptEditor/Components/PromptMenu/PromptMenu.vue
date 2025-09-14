@@ -164,7 +164,10 @@ export default {
                 // 更新当前项目的来源标记
                 this.item.data.word.source = 'notion'
                 
-                alert('成功插入到 Notion！')
+                this.$notify({
+                  message: '成功插入到 Notion！',
+                  type: 'success'
+                })
             } catch (error) {
                 console.error('插入到 Notion 失败:', error)
                 let errorMessage = '插入到 Notion 失败: ' + error.message
@@ -178,14 +181,20 @@ export default {
                     errorMessage += '\n\n可能的原因：\n1. 数据库字段结构不匹配\n2. 必填字段缺失'
                 }
                 
-                alert(errorMessage)
+                this.$notify({
+                  message: errorMessage,
+                  type: 'error'
+                })
             }
         },
         async doDeleteFromNotion() {
             this.close()
             try {
                 if (!this.notionPageId) {
-                    alert('无法找到 Notion 页面 ID')
+                    this.$notify({
+                  message: '无法找到 Notion 页面 ID',
+                  type: 'error'
+                })
                     return
                 }
 
@@ -194,7 +203,10 @@ export default {
                 
                 // 验证配置是否完整
                 if (!notionConfig.apiKey || !notionConfig.databaseId) {
-                    alert('请先在词典设置中配置 Notion API Key 和 Database ID')
+                    this.$notify({
+                  message: '请先在词典设置中配置 Notion API Key 和 Database ID',
+                  type: 'error'
+                })
                     return
                 }
 
@@ -215,7 +227,10 @@ export default {
                 // 更新当前项目的来源标记
                 this.item.data.word.source = 'local'
                 
-                alert('成功从 Notion 中删除！')
+                this.$notify({
+                  message: '成功从 Notion 中删除！',
+                  type: 'success'
+                })
             } catch (error) {
                 console.error('从 Notion 删除失败:', error)
                 alert('从 Notion 删除失败: ' + error.message)

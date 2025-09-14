@@ -22,7 +22,7 @@ export async function fetchFromNotion(options: { apiKey: string; databaseId: str
     await once()
     async function once(start_cursor?: string) {
         let re = await notion.databases.query({ database_id, start_cursor })
-        console.log(`[notion] get page${i} :${start_cursor ?? "init"}`, { re })
+        // console.log(`[notion] get page${i} :${start_cursor ?? "init"}`, { re })
         re.results.forEach((page: any, index) => {
             // console.log(`[notion] page${index}`, { page })
             let text = page.properties?.text?.title?.[0]?.text?.content

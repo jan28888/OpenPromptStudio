@@ -4,6 +4,25 @@ import 'floating-vue/dist/style.css'
 
 // ----------------- 全局组件 -----–––––––––––––––-
 import { Icon as vIcon } from "@iconify/vue2"
+import Notification from "../components/Notification.vue"
+
+// 创建通知插件
+const Notify = {
+  install(Vue) {
+    // 创建通知构造器
+    const NotificationConstructor = Vue.extend(Notification)
+    
+    // 添加通知方法
+    Vue.prototype.$notify = (options) => {
+      const instance = new NotificationConstructor({
+        propsData: options
+      })
+      
+      instance.$mount()
+      document.body.appendChild(instance.$el)
+    }
+  }
+}
 // ----------------------–––––––––––––––-
 import vRoot from "../Pages/Root.vue"
 import { getPagesRouter } from "../Pages"
@@ -14,6 +33,7 @@ export function bootVue(setVueHandler?: (VueConstructor: typeof Vue) => any) {
     // --------––––––––––––––––––––––––––––––
     Vue.component("Icon", vIcon)
     Vue.use(FloatingVue)
+    Vue.use(Notify)
     // --------––––––––––––––––––––––––––––––
     let router = getPagesRouter(Vue)
     let vueIns = new Vue({
