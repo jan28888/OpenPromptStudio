@@ -352,6 +352,15 @@ export default {
                 this.databaseId = val
             },
         },
+        dict: {
+            handler() {
+                // 当字典数据变化时检查溢出
+                this.$nextTick(() => {
+                    this.checkOverflow();
+                });
+            },
+            deep: true
+        },
     },
     created() {
         this.loadData()
@@ -377,6 +386,10 @@ export default {
             getDictData(onlyMyNotion.value).then((dict) => {
                 this.dict = dict
                 this.activeDir = dict[0]
+                // 数据加载完成后检查溢出
+                this.$nextTick(() => {
+                    this.checkOverflow();
+                });
             })
         },
 
@@ -455,6 +468,9 @@ export default {
                 
                 // 如果按钮区域的高度大于单个按钮的高度，说明有多行
                 this.hasOverflow = dirButtons.scrollHeight > buttonHeight * 1.5;
+                
+                // 强制重新渲染以确保图标显示
+                this.$forceUpdate();
             });
         },
     },
