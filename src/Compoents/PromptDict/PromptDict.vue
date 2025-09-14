@@ -53,9 +53,9 @@
                     {{ dir.name }}
                 </button>
             </div>
-            <button v-if="hasOverflow" class="expand-toggle" @click="dirExpanded = !dirExpanded">
+            <div v-if="hasOverflow" class="expand-toggle" @click="dirExpanded = !dirExpanded">
                 <Icon :icon="dirExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'" />
-            </button>
+            </div>
         </div>
 
         <div class="active-dir" v-if="activeDir">
@@ -89,7 +89,7 @@
     .dir-buttons {
         display: flex;
         flex-wrap: wrap;
-        padding: 0;
+        padding: 0 15px 0 0;
         border-radius: 4px;
         overflow: hidden;
         max-height: 36px; /* 默认只显示一行 */
@@ -120,24 +120,26 @@
     
     .expand-toggle {
         position: absolute;
-        right: 4px;
-        bottom: -8px;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: #d5d7ef;
+        right: 8px;
+        bottom: 6px;
         color: #4545b2;
+        cursor: pointer;
+        z-index: 10;
+        background: transparent;
+        border: none;
+        padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        border: 1px solid #c1c3e0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        z-index: 10;
-        padding: 0;
         
-        &:hover {
-            background: #c1c3e0;
+        .iconify {
+            font-size: 20px;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        
+        &:hover .iconify {
+            opacity: 1;
         }
     }
     .active-dir {
