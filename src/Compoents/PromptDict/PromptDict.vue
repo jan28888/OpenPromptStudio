@@ -313,9 +313,16 @@ const onlyMyNotion = useStorage("ops-notion-onlyMyNotion", false)
 const enableMyNotion = useStorage("ops-notion-enableMyNotion", true)
 
 export default {
+    props: {
+        searchTerm: {
+            type: String,
+            default: ''
+        }
+    },
     data() {
         return {
             dict: null,
+            originalDict: null, // 保存原始数据
             activeDir: null,
             apiKey,
             databaseId,
@@ -361,6 +368,12 @@ export default {
             },
             deep: true
         },
+        searchTerm: {
+            handler(newTerm) {
+                this.filterDict(newTerm);
+            },
+            immediate: true
+        },
     },
     created() {
         this.loadData()
@@ -384,8 +397,8 @@ export default {
     methods: {
         loadData() {
             getDictData(onlyMyNotion.value).then((dict) => {
-                this.dict = dict
-                this.activeDir = dict[0]
+                this.originalDict = dict // 保存原始数据
+                this.filterDict(this.searchTerm) // 应用当前搜索过滤
                 // 数据加载完成后检查溢出
                 this.$nextTick(() => {
                     this.checkOverflow();
@@ -472,6 +485,72 @@ export default {
                 // 强制重新渲染以确保图标显示
                 this.$forceUpdate();
             });
+        },
+        
+        filterDict(searchTerm) {
+            if (!this.originalDict) return;
+            
+            if (!searchTerm || searchTerm.trim() === '') {
+                // 没有搜索词时显示所有数据
+                this.dict = this.originalDict;
+                this.activeDir = this.dict[0];
+                return;
+            }
+            
+            const term = searchTerm.toLowerCase().trim();
+            
+            // 过滤字典数据
+            const filteredDict = this.originalDict.map(dir => {
+                // 过滤主目录的词汇
+                const filteredWords = dir.words.filter(word => 
+                    this.matchesSearchTerm(word, term)
+                );
+                
+                // 过滤子目录
+                const filteredChildren = dir.children.map(subDir => ({
+                    ...subDir,
+                    words: subDir.words.filter(word => 
+                        this.matchesSearchTerm(word, term)
+                    )
+                })).filter(subDir => subDir.words.length > 0);
+                
+                return {
+                    ...dir,
+                    words: filteredWords,
+                    children: filteredChildren
+                };
+            }).filter(dir => dir.words.length > 0 || dir.children.length > 0);
+            
+            this.dict = filteredDict;
+            this.activeDir = this.dict[0] || null;
+        },
+        
+        matchesSearchTerm(word, term) {
+            if (!word || !word.data || !word.data.word) return false;
+            
+            const wordData = word.data.word;
+            
+            // 搜索英文文本
+            if (wordData.text && wordData.text.toLowerCase().includes(term)) {
+                return true;
+            }
+            
+            // 搜索中文翻译
+            if (wordData.langText && wordData.langText.toLowerCase().includes(term)) {
+                return true;
+            }
+            
+            // 搜索原始文本（如果有）
+            if (wordData.rawText && wordData.rawText.toLowerCase().includes(term)) {
+                return true;
+            }
+            
+            // 搜索描述
+            if (wordData.desc && wordData.desc.toLowerCase().includes(term)) {
+                return true;
+            }
+            
+            return false;
         },
     },
     components: { PromptItem: vPromptItem },

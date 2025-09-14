@@ -23,6 +23,15 @@
             <div class="title">
                 <Icon icon="mingcute:book-4-fill" />
                 提示词词典
+                <div class="search-box">
+                    <Icon icon="mingcute:search-line" />
+                    <input 
+                        v-model="searchTerm" 
+                        type="text" 
+                        placeholder="搜索标签..." 
+                        @input="onSearchInput"
+                    />
+                </div>
                 <!--                <a class="github-dict" href="https://github.com/Moonvy/OpenPromptStudio" target="_blank">-->
                 <!--                    <Icon icon="radix-icons:github-logo" />一起维护词典</a-->
                 <!--                >-->
@@ -30,7 +39,7 @@
                     <Icon icon="radix-icons:cross-1" />
                 </button>
             </div>
-            <PromptDict />
+            <PromptDict :search-term="searchTerm" />
         </section>
     </div>
 </template>
@@ -164,6 +173,35 @@
                 color: #6161b7;
             }
 
+            > .search-box {
+                display: flex;
+                align-items: center;
+                margin-left: 20px;
+                background: rgba(255, 255, 255, 0.8);
+                border-radius: 6px;
+                padding: 4px 8px;
+                border: 1px solid rgba(97, 97, 183, 0.2);
+                
+                .iconify {
+                    font-size: 16px;
+                    color: #9f9f9f;
+                    margin-right: 6px;
+                }
+                
+                input {
+                    border: none;
+                    background: transparent;
+                    outline: none;
+                    font-size: 13px;
+                    color: #5a5a5a;
+                    width: 150px;
+                    
+                    &::placeholder {
+                        color: #b0b0b0;
+                    }
+                }
+            }
+
             > .close-button {
                 margin-left: auto;
             }
@@ -196,6 +234,7 @@
 import Vue, { PropType } from "vue"
 import vPromptEditor from "../../Compoents/PromptEditor/PromptEditor.vue"
 import vPromptDict from "../../Compoents/PromptDict/PromptDict.vue"
+import { debounce } from "lodash"
 
 import pkg from "../../../package.json"
 export default Vue.extend({
@@ -207,6 +246,7 @@ export default Vue.extend({
             initPrompts: null,
             dictPadHeight: 300,
             resizing: false,
+            searchTerm: '',
         }
     },
     methods: {
@@ -252,6 +292,10 @@ export default Vue.extend({
                 }
             }
         },
+        
+        onSearchInput: debounce(function() {
+            // 防抖处理搜索输入
+        }, 300),
     },
     components: {
         PromptEditor: <any>vPromptEditor,
