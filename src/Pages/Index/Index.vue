@@ -12,7 +12,14 @@
             </div>
         </nav>
         <PromptEditor ref="PromptEditor" :init-prompts="initPrompts" />
-        <section class="PromptDictPad" v-if="needDictPad" v-show="showDictPad">
+        <footer>
+            <a href="https://github.com/Moonvy/OpenPromptStudio" target="_blank">
+                <img class="icon" src="/icon.svg" /> OpenPromptStudio / v{{ version }} /
+            </a>
+            <a href="https://moonvy.com/?homepage"> made by <img src="./assets/logo_full_cn.svg" /></a>
+        </footer>
+        <section class="PromptDictPad" v-if="needDictPad" v-show="showDictPad" :style="{ height: dictPadHeight + 'px' }">
+            <div class="resize-handle" @mousedown="startResize"></div>
             <div class="title">
                 <Icon icon="mingcute:book-4-fill" />
                 提示词词典
@@ -25,12 +32,6 @@
             </div>
             <PromptDict />
         </section>
-        <footer>
-            <a href="https://github.com/Moonvy/OpenPromptStudio" target="_blank">
-                <img class="icon" src="/icon.svg" /> OpenPromptStudio / v{{ version }} /
-            </a>
-            <a href="https://moonvy.com/?homepage"> made by <img src="./assets/logo_full_cn.svg" /></a>
-        </footer>
     </div>
 </template>
 <style lang="scss">
@@ -120,15 +121,33 @@
         position: fixed;
         display: flex;
         flex-direction: column;
-        top: 0;
-        right: 0;
-        width: 550px;
-        height: 100vh;
+        bottom: 0;
+        left: 0;
+        width: 100%;
         z-index: 100;
-        max-width: calc(100vw - 100px);
         background: rgb(247 247 247 / 71%);
         backdrop-filter: blur(32px);
-        box-shadow: -2px 0 2px #26252512, -2px 0 12px #26252521, -2px 0 64px #0605491f;
+        box-shadow: 0 -2px 2px #26252512, 0 -2px 12px #26252521, 0 -2px 64px #0605491f;
+        transition: height 0.1s ease;
+        
+        > .resize-handle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            cursor: ns-resize;
+            background: transparent;
+            z-index: 101;
+            
+            &:hover {
+                background: rgba(97, 97, 183, 0.1);
+            }
+            
+            &:active {
+                background: rgba(97, 97, 183, 0.2);
+            }
+        }
 
         > .title {
             display: flex;
@@ -186,12 +205,36 @@ export default Vue.extend({
             needDictPad: false,
             version: pkg.version,
             initPrompts: null,
+            dictPadHeight: 300,
+            resizing: false,
         }
     },
     methods: {
         toggleDictPad(show?: boolean) {
             this.showDictPad = show ?? !this.showDictPad
             if (this.showDictPad) this.needDictPad = true
+        },
+        
+        startResize(event: MouseEvent) {
+            this.resizing = true;
+            document.addEventListener('mousemove', this.handleResize);
+            document.addEventListener('mouseup', this.stopResize);
+            // 防止选中文本
+            event.preventDefault();
+        },
+        
+        handleResize(event: MouseEvent) {
+            if (!this.resizing) return;
+            // 计算新高度 (窗口高度 - 鼠标Y坐标)
+            const newHeight = window.innerHeight - event.clientY;
+            // 限制最小和最大高度
+            this.dictPadHeight = Math.max(150, Math.min(window.innerHeight * 0.8, newHeight));
+        },
+        
+        stopResize() {
+            this.resizing = false;
+            document.removeEventListener('mousemove', this.handleResize);
+            document.removeEventListener('mouseup', this.stopResize);
         },
 
         getPromptsFromUrlQuery() {
@@ -216,6 +259,12 @@ export default Vue.extend({
     },
     created() {
         this.getPromptsFromUrlQuery()
+    },
+    
+    beforeDestroy() {
+        // 确保移除所有事件监听器
+        document.removeEventListener('mousemove', this.handleResize);
+        document.removeEventListener('mouseup', this.stopResize);
     },
 })
 </script>

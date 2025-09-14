@@ -47,9 +47,14 @@
             </div>
         </div>
 
-        <div class="dir-buttons" v-if="dict">
-            <button v-for="dir in dict" :class="{ active: dir == activeDir }" @click="doChangeActiveDir(dir)">
-                {{ dir.name }}
+        <div class="dir-buttons-container" v-if="dict" ref="dirButtonsContainer">
+            <div class="dir-buttons" :class="{ 'expanded': dirExpanded }">
+                <button v-for="dir in dict" :class="{ active: dir == activeDir }" @click="doChangeActiveDir(dir)">
+                    {{ dir.name }}
+                </button>
+            </div>
+            <button v-if="hasOverflow" class="expand-toggle" @click="dirExpanded = !dirExpanded">
+                <Icon :icon="dirExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'" />
             </button>
         </div>
 
@@ -75,18 +80,27 @@
     flex-direction: column;
     overflow: hidden;
 
+    .dir-buttons-container {
+        position: relative;
+        margin: 0 4px;
+        margin-bottom: 12px;
+    }
+
     .dir-buttons {
         display: flex;
         flex-wrap: wrap;
-        margin: 0 4px;
-        margin-bottom: 12px;
         padding: 0;
         border-radius: 4px;
         overflow: hidden;
-        height: auto;
+        max-height: 36px; /* 默认只显示一行 */
+        transition: max-height 0.3s ease;
         flex: none;
         width: auto;
         background: #d5d7ef;
+        
+        &.expanded {
+            max-height: 500px; /* 展开后的最大高度 */
+        }
         button {
             background: #d5d7ef;
             color: #4545b2;
@@ -95,11 +109,35 @@
             min-width: 72px;
             white-space: nowrap;
             place-content: center;
+            height: 36px;
             &.active {
                 background: #4545b2;
                 color: #d5d7ef;
                 text-shadow: 0 1px 1px rgb(49 52 88);
             }
+        }
+    }
+    
+    .expand-toggle {
+        position: absolute;
+        right: 4px;
+        bottom: -8px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #d5d7ef;
+        color: #4545b2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 1px solid #c1c3e0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+        padding: 0;
+        
+        &:hover {
+            background: #c1c3e0;
         }
     }
     .active-dir {
@@ -286,6 +324,8 @@ export default {
             notionUrl: null,
             loading: false,
             isHoverButton: false,
+            dirExpanded: false,
+            hasOverflow: false,
         }
     },
     watch: {
@@ -318,6 +358,17 @@ export default {
         if (this.notioConfigActive) {
             this.reloadData()
         }
+    },
+    
+    mounted() {
+        this.$nextTick(() => {
+            this.checkOverflow();
+            window.addEventListener('resize', this.checkOverflow);
+        });
+    },
+    
+    beforeDestroy() {
+        window.removeEventListener('resize', this.checkOverflow);
     },
     methods: {
         loadData() {
@@ -385,6 +436,25 @@ export default {
         setNotionHover: debounce(function (v) {
             this.isHoverButton = v
         }, 400),
+        
+        checkOverflow() {
+            this.$nextTick(() => {
+                const container = this.$refs.dirButtonsContainer;
+                if (!container) return;
+                
+                const dirButtons = container.querySelector('.dir-buttons');
+                if (!dirButtons) return;
+                
+                // 获取第一个按钮的高度作为单行高度参考
+                const firstButton = dirButtons.querySelector('button');
+                if (!firstButton) return;
+                
+                const buttonHeight = firstButton.offsetHeight;
+                
+                // 如果按钮区域的高度大于单个按钮的高度，说明有多行
+                this.hasOverflow = dirButtons.scrollHeight > buttonHeight * 1.5;
+            });
+        },
     },
     components: { PromptItem: vPromptItem },
 
